@@ -1,16 +1,22 @@
 package main
 
 import (
-	"gotor/internal"
 	"gotor/internal/parsing"
+	"log"
 	"os"
-	"syscall"
 )
 
 func main() {
-	internal.InitGlobal()
-	f, _ := os.OpenFile("debian.torrent", syscall.O_RDWR, 0644)
+	inPath := os.Args[1]
+	outPath := os.Args[2]
 
-	torrent, _ := parsing.Open(f)
-	internal.Logger.Info("torrent", torrent)
+	tf, err := parsing.Open(inPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = tf.DownloadToFile(outPath)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

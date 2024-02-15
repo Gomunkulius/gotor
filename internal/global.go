@@ -7,6 +7,7 @@ import (
 
 var (
 	Logger *slog.Logger
+	Port   int = 6484
 )
 
 func InitGlobal() {
