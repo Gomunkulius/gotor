@@ -13,21 +13,27 @@ import (
 
 func main() {
 	internal.InitGlobal()
+	f, err := tea.LogToFile("LOG.log", "debug")
+	if err != nil {
+		return
+	}
+	defer f.Close()
 	c, _ := torrent.NewClient(nil)
 	defer c.Close()
 	t, _ := c.AddMagnet("magnet:?xt=urn:btih:XF26SWOW4FRBWVDKYJAUQQCWJM3U2APZ&dn=debian-12.5.0-arm64-netinst.iso&xl=551858176&tr=http%3A%2F%2Fbttracker.debian.org%3A6969%2Fannounce")
+	t1, _ := c.AddMagnet("magnet:?xt=urn:btih:FNTJQAETXQIYA35LKDFTZNAYGW4VUA3C&dn=debian-12.5.0-amd64-netinst.iso&xl=659554304&tr=http%3A%2F%2Fbttracker.debian.org%3A6969%2Fannounce")
 	<-t.GotInfo()
+	<-t1.GotInfo()
 	go func() {
 		t.DownloadAll()
 		c.WaitAll()
 	}()
-	t1, _ := c.AddMagnet("magnet:?xt=urn:btih:FNTJQAETXQIYA35LKDFTZNAYGW4VUA3C&dn=debian-12.5.0-amd64-netinst.iso&xl=659554304&tr=http%3A%2F%2Fbttracker.debian.org%3A6969%2Fannounce")
-	<-t1.GotInfo()
 	go func() {
 		t1.DownloadAll()
 		c.WaitAll()
 	}()
 	s := table.DefaultStyles()
+
 	s.Header = s.Header.
 		BorderStyle(lipgloss.NormalBorder()).
 		BorderForeground(lipgloss.Color("247")).
