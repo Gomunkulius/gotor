@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"github.com/anacrolix/torrent"
 	"github.com/charmbracelet/bubbles/table"
-	"gotor/internal"
-	"math"
+	"github.com/dustin/go-humanize"
 	"strconv"
-	"time"
 )
 
 type TorrentTable struct {
@@ -27,18 +25,18 @@ func New(style table.Styles, torrents []*torrent.Torrent) TorrentTable {
 	}
 	rows := []table.Row{}
 	for _, tor := range torrents {
-		index := int(math.Round(math.Log(float64(tor.Info().Length))/math.Log(1000))) - 1
 
-		postfix := internal.SizePostfix[index]
 		speed := tor.Info().Length
 		percentage := (float32(tor.Stats().PiecesComplete) / float32(tor.NumPieces())) * 100.0
+
+		written := tor.Stats().BytesWritten
 		row := table.Row{
 			tor.Name(),
-			fmt.Sprintf("%.2f%s", float32(speed)/(float32(math.Pow(1000, float64(index)))), postfix),
+			fmt.Sprintf("%s", humanize.Bytes(uint64(speed))),
 			fmt.Sprintf("%.2f%%", percentage),
 			"Up",
 			strconv.Itoa(tor.Stats().ActivePeers),
-			"DEBUG",
+			humanize.Bytes(uint64(written.Int64())),
 		}
 
 		rows = append(rows, row)
@@ -69,21 +67,18 @@ func (t *TorrentTable) Update() {
 		{Title: "⬆️Up speed", Width: 10},
 	}
 	var rows []table.Row
-	for i, tor := range t.Torrents {
-		index := int(math.Round(math.Log(float64(tor.Info().Length))/math.Log(1000))) - 1
-
-		postfix := internal.SizePostfix[index]
-		speed := tor.Info().Length
+	for _, tor := range t.Torrents {
 		percentage := (float32(tor.Stats().PiecesComplete) / float32(tor.NumPieces())) * 100.0
-		go t.GetSpeed(i)
+		written := tor.Stats().BytesWritten
 		row := table.Row{
 			tor.Name(),
-			fmt.Sprintf("%.2f%s", float32(speed)/(float32(math.Pow(1000, float64(index)))), postfix),
+			fmt.Sprintf("%s", humanize.Bytes(uint64(tor.Length()))),
 			fmt.Sprintf("%.2f%%", percentage),
 			"Up",
 			strconv.Itoa(tor.Stats().ActivePeers),
-			strconv.Itoa(int(spd)),
+			fmt.Sprintf("%s/s", humanize.Bytes(uint64(written.Int64()))),
 		}
+
 		rows = append(rows, row)
 	}
 	tab := table.New(
@@ -95,23 +90,5 @@ func (t *TorrentTable) Update() {
 	)
 	tab.SetCursor(t.Table.Cursor())
 	t.Table = tab
-	return
-}
-
-// GetSpeed Returns count of bytes downloaded in 1 second
-func (t TorrentTable) GetSpeed(index int) {
-	tor := t.Torrents[index]
-	before := tor.Stats().BytesWrittenData
-	stat := make(chan int)
-	go func() {
-		time.Sleep(1 * time.Second)
-		stat <- tor.Stats().BytesWrittenData
-	}()
-	after := <-stat
-	packets := after - before
-	if packets == 0 {
-		return
-	}
-	bytes := int64(packets) * tor.Info().PieceLength
 	return
 }

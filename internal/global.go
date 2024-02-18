@@ -19,5 +19,4 @@ var BaseStyle = lipgloss.NewStyle().
 
 func InitGlobal() {
 	Logger = log.GetLogger()
-	Logger.Info("Successfully init global variables")
 }

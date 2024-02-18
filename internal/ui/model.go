@@ -28,7 +28,7 @@ func NewModel(table TorrentTable) MainModel {
 
 // Send a message every second.
 func tickEvery() tea.Cmd {
-	return tea.Every(1000*time.Millisecond, func(t time.Time) tea.Msg {
+	return tea.Every(100*time.Millisecond, func(t time.Time) tea.Msg {
 		return TickMsg(t)
 	})
 }
