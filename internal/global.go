@@ -7,15 +7,16 @@ import (
 )
 
 var (
-	Logger      *slog.Logger
-	Port        int      = 6484
-	SizePostfix []string = []string{"B", "KiB", "MiB", "GiB", "TiB"}
-	HelpString  string   = "ctrl-c/q - quit, b - add torrent, j - remove torrent, e - pause torrent"
+	Logger     *slog.Logger
+	HelpString string = "ctrl-c/q - quit, b - add torrent, j - remove torrent, e - pause torrent"
 )
 
 var BaseStyle = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).
 	BorderForeground(lipgloss.Color("247"))
+
+var InputStyle = lipgloss.NewStyle().
+	Width(80).Align(lipgloss.Center).Foreground(lipgloss.Color("229"))
 
 func InitGlobal() {
 	Logger = log.GetLogger()

@@ -19,14 +19,6 @@ func main() {
 	}
 	defer f.Close()
 	c, _ := torrent.NewClient(nil)
-	defer c.Close()
-	t, _ := c.AddMagnet("magnet:?xt=urn:btih:HJVLTRV6UJEL7TJJQFT25QZYOAPK3N22&dn=Crusader%20Kings%203%20by%20Igruha&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce")
-	<-t.GotInfo()
-
-	go func() {
-		t.DownloadAll()
-		c.WaitAll()
-	}()
 
 	s := table.DefaultStyles()
 
@@ -39,9 +31,9 @@ func main() {
 		Foreground(lipgloss.Color("229")).
 		Background(lipgloss.Color("57")).
 		Bold(false)
-	torTable := ui.New(s, []*torrent.Torrent{t})
+	torTable := ui.New(s, []*torrent.Torrent{})
 
-	m := ui.NewModel(torTable)
+	m := ui.NewModel(torTable, c)
 
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)

@@ -1,28 +1,34 @@
 package ui
 
 import (
+	"github.com/anacrolix/torrent"
 	"github.com/charmbracelet/bubbles/table"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"gotor/internal"
+	torrent2 "gotor/internal/torrent"
 	"time"
 )
 
 type MainModel struct {
-	keys   table.KeyMap
-	width  int
-	height int
-	table  TorrentTable
-	cnt    int
+	keys       table.KeyMap
+	width      int
+	height     int
+	table      TorrentTable
+	inputFlag  bool
+	inputField textinput.Model
+	cancels    []chan bool
+	conn       *torrent.Client
 }
 
 type TickMsg time.Time
 
-func NewModel(table TorrentTable) MainModel {
+func NewModel(table TorrentTable, conn *torrent.Client) MainModel {
 	return MainModel{
-		width:  0,
-		height: 0,
-		table:  table,
+		inputField: textinput.New(),
+		table:      table,
+		conn:       conn,
 	}
 }
 
@@ -48,7 +54,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.table.Table, _ = m.table.Table.Update(msg)
 		m.table.Update()
 		m.table.Table.UpdateViewport()
-		return m, tickEvery()
+		return m, tea.Batch(tickEvery())
 	case tea.WindowSizeMsg:
 		m.height = msg.Height
 		m.width = msg.Width
@@ -61,11 +67,38 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				m.table.Table.Focus()
 			}
+		case "b":
+			if !m.inputFlag {
+				m.inputFlag = true
+				m.inputField.Focus()
+			}
+
+		case "enter":
+			if m.inputFlag {
+				magnet := m.inputField.Value()
+				t, _ := m.conn.AddMagnet(magnet)
+				m.table.Torrents = append(m.table.Torrents, t)
+				<-t.GotInfo()
+				canc := make(chan bool)
+				go torrent2.DownloadTorrent(t, canc)
+				m.cancels = append(m.cancels, canc)
+				m.inputFlag = false
+				return m, nil
+			}
+		case "j":
+			if !m.inputFlag {
+				if len(m.table.Torrents) == 0 {
+					return m, nil
+				}
+				m.table.Torrents = torrent2.RemoveTorrent(m.table.Torrents, m.cancels[m.table.Table.Cursor()], m.table.Table.Cursor())
+			}
+
 		case "q", "ctrl+c":
 			return m, tea.Quit
 		}
 	}
-	m.cnt++
+	m.inputField, _ = m.inputField.Update(msg)
+
 	m.table.Table, _ = m.table.Table.Update(msg)
 	m.table.Update()
 	return m, nil
@@ -74,6 +107,16 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m MainModel) View() string {
 	textStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	if m.inputFlag {
+		return lipgloss.Place(
+			m.width,
+			m.height,
+			lipgloss.Center,
+			lipgloss.Center,
+			lipgloss.JoinVertical(lipgloss.Center, internal.InputStyle.Render("Enter magnet"),
+				internal.InputStyle.Render(m.inputField.View())),
+		)
+	}
 	return lipgloss.Place(
 		m.width,
 		m.height,

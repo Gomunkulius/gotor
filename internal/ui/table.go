@@ -68,6 +68,7 @@ func (t *TorrentTable) Update() {
 	}
 	var rows []table.Row
 	for _, tor := range t.Torrents {
+
 		percentage := (float32(tor.Stats().PiecesComplete) / float32(tor.NumPieces())) * 100.0
 		written := tor.Stats().BytesWritten
 		row := table.Row{
