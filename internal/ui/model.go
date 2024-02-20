@@ -2,7 +2,7 @@ package ui
 
 import (
 	"github.com/anacrolix/torrent"
-	"github.com/charmbracelet/bubbles/table"
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -13,7 +13,8 @@ import (
 )
 
 type MainModel struct {
-	keys       table.KeyMap
+	keys       KeyMap
+	help       help.Model
 	width      int
 	height     int
 	table      TorrentTable
@@ -28,7 +29,9 @@ type TickMsg time.Time
 
 func NewModel(table TorrentTable, conn *torrent.Client, storage storage.Storage, cancels []chan bool) MainModel {
 	return MainModel{
+		keys:       keys,
 		cancels:    cancels,
+		help:       help.New(),
 		storage:    storage,
 		inputField: textinput.New(),
 		table:      table,
@@ -46,6 +49,7 @@ func tickEvery() tea.Cmd {
 type TorrentInfoUpdate string
 
 func (m MainModel) Init() tea.Cmd {
+	m.help.ShowAll = true
 	return tickEvery()
 }
 
@@ -142,6 +146,5 @@ func (m MainModel) View() string {
 		m.height,
 		lipgloss.Center,
 		lipgloss.Center,
-		lipgloss.JoinVertical(lipgloss.Center, internal.BaseStyle.Render(m.table.Table.View()), textStyle.Render(internal.HelpString)),
-	)
+		lipgloss.JoinVertical(lipgloss.Center, internal.BaseStyle.Render(m.table.Table.View()), textStyle.Render(m.help.View(m.keys))))
 }
