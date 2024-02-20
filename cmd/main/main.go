@@ -7,6 +7,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"gotor/internal"
+	torrent2 "gotor/internal/torrent"
+	"gotor/internal/torrent/local"
 	"gotor/internal/ui"
 	"os"
 )
@@ -19,7 +21,6 @@ func main() {
 	}
 	defer f.Close()
 	c, _ := torrent.NewClient(nil)
-
 	s := table.DefaultStyles()
 
 	s.Header = s.Header.
@@ -31,9 +32,17 @@ func main() {
 		Foreground(lipgloss.Color("229")).
 		Background(lipgloss.Color("57")).
 		Bold(false)
-	torTable := ui.New(s, []*torrent.Torrent{})
-
-	m := ui.NewModel(torTable, c)
+	storage, err := local.NewStorage(".", c)
+	torrents, err := storage.GetAll()
+	cancels := torrent2.InitTorrents(torrents)
+	if err != nil {
+		return
+	}
+	torTable := ui.New(s, torrents)
+	if err != nil {
+		return
+	}
+	m := ui.NewModel(torTable, c, storage, cancels)
 
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)

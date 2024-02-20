@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"gotor/internal"
 	torrent2 "gotor/internal/torrent"
+	"gotor/internal/torrent/storage"
 	"time"
 )
 
@@ -20,12 +21,15 @@ type MainModel struct {
 	inputField textinput.Model
 	cancels    []chan bool
 	conn       *torrent.Client
+	storage    storage.Storage
 }
 
 type TickMsg time.Time
 
-func NewModel(table TorrentTable, conn *torrent.Client) MainModel {
+func NewModel(table TorrentTable, conn *torrent.Client, storage storage.Storage, cancels []chan bool) MainModel {
 	return MainModel{
+		cancels:    cancels,
+		storage:    storage,
 		inputField: textinput.New(),
 		table:      table,
 		conn:       conn,
@@ -42,7 +46,6 @@ func tickEvery() tea.Cmd {
 type TorrentInfoUpdate string
 
 func (m MainModel) Init() tea.Cmd {
-
 	return tickEvery()
 }
 
@@ -71,18 +74,30 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if !m.inputFlag {
 				m.inputFlag = true
 				m.inputField.Focus()
+				return m, nil
 			}
 
 		case "enter":
 			if m.inputFlag {
 				magnet := m.inputField.Value()
 				t, _ := m.conn.AddMagnet(magnet)
-				m.table.Torrents = append(m.table.Torrents, t)
 				<-t.GotInfo()
+				for _, t2 := range m.table.Torrents {
+					if t == t2 {
+						m.inputFlag = false
+						m.inputField.SetValue("")
+						return m, nil
+					}
+				}
+				m.table.Torrents = append(m.table.Torrents, t)
 				canc := make(chan bool)
 				go torrent2.DownloadTorrent(t, canc)
 				m.cancels = append(m.cancels, canc)
 				m.inputFlag = false
+				_, err := m.storage.Save(t)
+				if err != nil {
+					return nil, nil
+				}
 				return m, nil
 			}
 		case "j":
@@ -90,7 +105,12 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if len(m.table.Torrents) == 0 {
 					return m, nil
 				}
-				m.table.Torrents = torrent2.RemoveTorrent(m.table.Torrents, m.cancels[m.table.Table.Cursor()], m.table.Table.Cursor())
+				m.table.Torrents = torrent2.RemoveTorrent(
+					m.table.Torrents,
+					m.cancels[m.table.Table.Cursor()],
+					m.table.Table.Cursor(),
+					m.storage)
+
 			}
 
 		case "q", "ctrl+c":
