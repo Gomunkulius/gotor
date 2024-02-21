@@ -5,6 +5,7 @@ import (
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/chaisql/chai"
+	torrent2 "gotor/internal/torrent"
 	"net/url"
 	"os"
 )
@@ -33,7 +34,7 @@ func (s StorageSqlite) Save(tf *torrent.Torrent) (string, error) {
 	return hash, nil
 }
 
-func (s StorageSqlite) Get(hash string) (*torrent.Torrent, error) {
+func (s StorageSqlite) Get(hash string) (*torrent2.Torrent, error) {
 	q := "SELECT magnet FROM torrents WHERE torrent_hash = ?"
 	var magnet string
 	row, err := s.db.QueryRow(q, hash)
@@ -41,21 +42,17 @@ func (s StorageSqlite) Get(hash string) (*torrent.Torrent, error) {
 	if err != nil {
 		return nil, err
 	}
-	tor, err := s.conn.AddMagnet(magnet)
-	if err != nil {
-		return nil, err
-	}
 	<-tor.GotInfo()
 	return tor, nil
 }
 
-func (s StorageSqlite) GetAll() ([]*torrent.Torrent, error) {
+func (s StorageSqlite) GetAll() ([]*torrent2.Torrent, error) {
 	q := "SELECT magnet FROM torrents"
 	row, err := s.db.Query(q)
 	if err != nil {
 		return nil, err
 	}
-	res := make([]*torrent.Torrent, 0)
+	res := make([]*torrent2.Torrent, 0)
 	defer row.Close()
 
 	err = row.Iterate(func(r *chai.Row) error {
@@ -64,11 +61,7 @@ func (s StorageSqlite) GetAll() ([]*torrent.Torrent, error) {
 		if err != nil {
 			return err
 		}
-		tor, err := s.conn.AddMagnet(magnet)
-		if err != nil {
-			return err
-		}
-		<-tor.GotInfo()
+		tor := torrent2.NewTorrent(magnet, s.conn)
 		res = append(res, tor)
 		return nil
 	})

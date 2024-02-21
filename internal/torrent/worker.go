@@ -1,30 +1,27 @@
 package torrent
 
 import (
-	"github.com/anacrolix/torrent"
 	"gotor/internal/torrent/storage"
 )
 
 // DownloadTorrent Must be used as a goroutine
-func DownloadTorrent(torrent *torrent.Torrent, cancel chan bool) {
-	torrent.DownloadAll()
-	<-cancel
+func DownloadTorrent(torrent *Torrent) {
+	torrent.Torrent.DownloadAll()
+	<-torrent.cancel
 }
 
-func RemoveTorrent(s []*torrent.Torrent, cancel chan bool, index int, storage storage.Storage) []*torrent.Torrent {
-	err := storage.Delete(s[index].InfoHash().String())
+func RemoveTorrent(s []*Torrent, index int, storage storage.Storage) []*Torrent {
+	tor := s[index]
+	err := storage.Delete(tor.Torrent.InfoHash().String())
 	if err != nil {
 		return nil
 	}
-	cancel <- true
+	tor.cancel <- true
 	return append(s[:index], s[index+1:]...)
 }
 
-func InitTorrents(torrents []*torrent.Torrent) (res []chan bool) {
+func InitTorrents(torrents []*Torrent) {
 	for _, t := range torrents {
-		cancel := make(chan bool)
-		go DownloadTorrent(t, cancel)
-		res = append(res, cancel)
+		go DownloadTorrent(t)
 	}
-	return res
 }
