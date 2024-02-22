@@ -8,7 +8,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"gotor/internal"
 	torrent2 "gotor/internal/torrent"
-	"gotor/internal/torrent/storage"
 	"time"
 )
 
@@ -20,17 +19,16 @@ type MainModel struct {
 	table      TorrentTable
 	inputFlag  bool
 	inputField textinput.Model
-	cancels    []chan bool
 	conn       *torrent.Client
-	storage    storage.Storage
+	storage    torrent2.Storage
 }
 
 type TickMsg time.Time
 
-func NewModel(table TorrentTable, conn *torrent.Client, storage storage.Storage, cancels []chan bool) MainModel {
+func NewModel(table TorrentTable, conn *torrent.Client, storage torrent2.Storage) MainModel {
 	return MainModel{
-		keys:       keys,
-		cancels:    cancels,
+		keys: keys,
+
 		help:       help.New(),
 		storage:    storage,
 		inputField: textinput.New(),
@@ -84,8 +82,10 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			if m.inputFlag {
 				magnet := m.inputField.Value()
-				t, _ := m.conn.AddMagnet(magnet)
-				<-t.GotInfo()
+				t, err := torrent2.NewTorrent(magnet, m.conn, torrent2.UP)
+				if err != nil {
+					return m, nil
+				}
 				for _, t2 := range m.table.Torrents {
 					if t == t2 {
 						m.inputFlag = false
@@ -94,11 +94,9 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					}
 				}
 				m.table.Torrents = append(m.table.Torrents, t)
-				canc := make(chan bool)
-				go torrent2.DownloadTorrent(t, canc)
-				m.cancels = append(m.cancels, canc)
+				go torrent2.DownloadTorrent(t)
 				m.inputFlag = false
-				_, err := m.storage.Save(t)
+				_, err = m.storage.Save(t)
 				if err != nil {
 					return nil, nil
 				}
@@ -111,7 +109,6 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 				m.table.Torrents = torrent2.RemoveTorrent(
 					m.table.Torrents,
-					m.cancels[m.table.Table.Cursor()],
 					m.table.Table.Cursor(),
 					m.storage)
 

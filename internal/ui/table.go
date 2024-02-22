@@ -2,19 +2,19 @@ package ui
 
 import (
 	"fmt"
-	"github.com/anacrolix/torrent"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/dustin/go-humanize"
+	torrent2 "gotor/internal/torrent"
 	"strconv"
 )
 
 type TorrentTable struct {
-	Torrents []*torrent.Torrent
+	Torrents []*torrent2.Torrent
 	Table    table.Model
 	styles   table.Styles
 }
 
-func New(style table.Styles, torrents []*torrent.Torrent) TorrentTable {
+func New(style table.Styles, torrents []*torrent2.Torrent) TorrentTable {
 	columns := []table.Column{
 		{Title: "ℹ️Name", Width: 10},
 		{Title: "📊Size", Width: 10},
@@ -26,16 +26,16 @@ func New(style table.Styles, torrents []*torrent.Torrent) TorrentTable {
 	rows := []table.Row{}
 	for _, tor := range torrents {
 
-		speed := tor.Info().Length
-		percentage := (float32(tor.Stats().PiecesComplete) / float32(tor.NumPieces())) * 100.0
+		speed := tor.Torrent.Info().Length
+		percentage := (float32(tor.Torrent.Stats().PiecesComplete) / float32(tor.Torrent.NumPieces())) * 100.0
 
-		written := tor.Stats().BytesWritten
+		written := tor.Torrent.Stats().BytesWritten
 		row := table.Row{
-			tor.Name(),
+			tor.Torrent.Name(),
 			fmt.Sprintf("%s", humanize.Bytes(uint64(speed))),
 			fmt.Sprintf("%.2f%%", percentage),
 			"Up",
-			strconv.Itoa(tor.Stats().ActivePeers),
+			strconv.Itoa(tor.Torrent.Stats().ActivePeers),
 			humanize.Bytes(uint64(written.Int64())),
 		}
 
@@ -69,14 +69,14 @@ func (t *TorrentTable) Update() {
 	var rows []table.Row
 	for _, tor := range t.Torrents {
 
-		percentage := (float32(tor.Stats().PiecesComplete) / float32(tor.NumPieces())) * 100.0
-		written := tor.Stats().BytesWritten
+		percentage := (float32(tor.Torrent.Stats().PiecesComplete) / float32(tor.Torrent.NumPieces())) * 100.0
+		written := tor.Torrent.Stats().BytesWritten
 		row := table.Row{
-			tor.Name(),
-			fmt.Sprintf("%s", humanize.Bytes(uint64(tor.Length()))),
+			tor.Torrent.Name(),
+			fmt.Sprintf("%s", humanize.Bytes(uint64(tor.Torrent.Length()))),
 			fmt.Sprintf("%.2f%%", percentage),
 			"Up",
-			strconv.Itoa(tor.Stats().ActivePeers),
+			strconv.Itoa(tor.Torrent.Stats().ActivePeers),
 			fmt.Sprintf("%s/s", humanize.Bytes(uint64(written.Int64()))),
 		}
 

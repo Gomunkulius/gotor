@@ -15,19 +15,19 @@ type StorageSqlite struct {
 	conn *torrent.Client
 }
 
-func (s StorageSqlite) Save(tf *torrent.Torrent) (string, error) {
+func (s StorageSqlite) Save(tf *torrent2.Torrent) (string, error) {
 	q := "INSERT INTO torrents (torrent_hash, name, magnet) VALUES (?, ?, ?)"
 	var m metainfo.Magnet
-	info := tf.Metainfo()
+	info := tf.Torrent.Metainfo()
 	m.Trackers = append(m.Trackers, info.UpvertedAnnounceList().DistinctValues()...)
-	if tf.Info() != nil {
-		m.DisplayName = tf.Info().BestName()
+	if tf.Torrent.Info() != nil {
+		m.DisplayName = tf.Torrent.Info().BestName()
 	}
-	m.InfoHash = tf.InfoHash()
+	m.InfoHash = tf.Torrent.InfoHash()
 	m.Params = make(url.Values)
-	m.Params["ws"] = tf.Metainfo().UrlList
-	hash := tf.InfoHash().String()
-	err := s.db.Exec(q, hash, tf.Name(), m.String())
+	m.Params["ws"] = tf.Torrent.Metainfo().UrlList
+	hash := tf.Torrent.InfoHash().String()
+	err := s.db.Exec(q, hash, tf.Torrent.Name(), m.String())
 	if err != nil {
 		return "", err
 	}
@@ -42,8 +42,12 @@ func (s StorageSqlite) Get(hash string) (*torrent2.Torrent, error) {
 	if err != nil {
 		return nil, err
 	}
-	<-tor.GotInfo()
-	return tor, nil
+	newTorrent, err := torrent2.NewTorrent(magnet, s.conn, torrent2.UP)
+	if err != nil {
+		return nil, err
+	}
+	<-newTorrent.Torrent.GotInfo()
+	return newTorrent, nil
 }
 
 func (s StorageSqlite) GetAll() ([]*torrent2.Torrent, error) {
@@ -61,7 +65,10 @@ func (s StorageSqlite) GetAll() ([]*torrent2.Torrent, error) {
 		if err != nil {
 			return err
 		}
-		tor := torrent2.NewTorrent(magnet, s.conn)
+		tor, err := torrent2.NewTorrent(magnet, s.conn, torrent2.UP)
+		if err != nil {
+			return err
+		}
 		res = append(res, tor)
 		return nil
 	})

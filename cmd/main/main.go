@@ -34,7 +34,7 @@ func main() {
 		Bold(false)
 	storage, err := local.NewStorage(".", c)
 	torrents, err := storage.GetAll()
-	cancels := torrent2.InitTorrents(torrents)
+	torrent2.InitTorrents(torrents)
 	if err != nil {
 		return
 	}
@@ -42,7 +42,7 @@ func main() {
 	if err != nil {
 		return
 	}
-	m := ui.NewModel(torTable, c, storage, cancels)
+	m := ui.NewModel(torTable, c, storage)
 
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)

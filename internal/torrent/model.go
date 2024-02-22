@@ -15,7 +15,7 @@ type Torrent struct {
 	Status  Status
 }
 
-func NewTorrent(magnet string, conn *torrent.Client) (*Torrent, error) {
+func NewTorrent(magnet string, conn *torrent.Client, status Status) (*Torrent, error) {
 	tor, err := conn.AddMagnet(magnet)
 	if err != nil {
 		return nil, err
@@ -24,6 +24,6 @@ func NewTorrent(magnet string, conn *torrent.Client) (*Torrent, error) {
 	return &Torrent{
 		Torrent: tor,
 		cancel:  make(chan bool),
-		Status:  UP,
+		Status:  status,
 	}, nil
 }
