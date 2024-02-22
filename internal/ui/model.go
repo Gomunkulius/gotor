@@ -81,6 +81,7 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.inputFlag {
 				magnet := m.inputField.Value()
 				t, err := torrent2.NewTorrent(magnet, m.conn, torrent2.UP)
+				<-t.Torrent.GotInfo()
 				if err != nil {
 					return m, nil
 				}
