@@ -67,10 +67,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
-			if m.table.Table.Focused() {
-				m.table.Table.Blur()
-			} else {
-				m.table.Table.Focus()
+			if m.inputFlag {
+				m.inputFlag = false
 			}
 		case "b":
 			if !m.inputFlag {
