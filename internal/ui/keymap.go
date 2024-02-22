@@ -5,16 +5,16 @@ import "github.com/charmbracelet/bubbles/key"
 type KeyMap struct {
 	AddTorrent    key.Binding
 	DeleteTorrent key.Binding
-	PauseTorrent  key.Binding
-	Quit          key.Binding
+
+	Quit key.Binding
 }
 
 func (k KeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.Quit, k.AddTorrent, k.DeleteTorrent, k.PauseTorrent}
+	return []key.Binding{k.Quit, k.AddTorrent, k.DeleteTorrent}
 }
 
 func (k KeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.Quit, k.AddTorrent, k.DeleteTorrent, k.PauseTorrent}}
+	return [][]key.Binding{{k.Quit, k.AddTorrent, k.DeleteTorrent}}
 }
 
 var keys = KeyMap{
@@ -24,9 +24,6 @@ var keys = KeyMap{
 	DeleteTorrent: key.NewBinding(
 		key.WithKeys("j"),
 		key.WithHelp("j", "delete torrent")),
-	PauseTorrent: key.NewBinding(
-		key.WithKeys("e"),
-		key.WithHelp("j", "pause torrent")),
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c", "q"),
 		key.WithHelp("ctrl+c/q", "quit")),
