@@ -2,3 +2,5 @@ debug.log
 *.torrent
 *.log
 pebble
+.idea
+.DS_Store
