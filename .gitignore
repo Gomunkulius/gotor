@@ -4,3 +4,4 @@ debug.log
 pebble
 .idea
 .DS_Store
+.*
