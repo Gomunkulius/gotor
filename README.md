@@ -8,6 +8,11 @@ The least functional and simplest torrent client you've ever seen
 make install
 ```
 
+## Roadmap
+
+- [ ] Pause torrents
+- [ ] Add torrent by .torrent file
+
 ## Screenshot
 <img src="./image.png">
 

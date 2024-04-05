@@ -11,8 +11,16 @@ const (
 
 type Torrent struct {
 	Torrent *torrent.Torrent
-	cancel  chan bool
-	Status  Status
+
+	// cancel is the channel used to stop the torrent download
+	cancel chan bool
+	Status Status
+}
+
+type TorrentModel struct {
+	TorrentHash string `gorm:"primary_key"`
+	Name        string
+	Magnet      string
 }
 
 func NewTorrent(magnet string, conn *torrent.Client, status Status) (*Torrent, error) {

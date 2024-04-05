@@ -23,7 +23,7 @@ func New(style table.Styles, torrents []*torrent2.Torrent) TorrentTable {
 		{Title: "🧩Peers", Width: 10},
 		{Title: "⬆️Up speed", Width: 10},
 	}
-	rows := []table.Row{}
+	var rows []table.Row
 	for _, tor := range torrents {
 
 		speed := tor.Torrent.Info().Length

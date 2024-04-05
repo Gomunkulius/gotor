@@ -1,21 +1,22 @@
 package local
 
 import (
-	"fmt"
 	"github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/chaisql/chai"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	torrent2 "gotor/internal/torrent"
 	"net/url"
 	"os"
 )
 
-type StorageSqlite struct {
-	db   *chai.DB
+type storageSqlite struct {
+	db   *gorm.DB
 	conn *torrent.Client
 }
 
-func (s StorageSqlite) Save(tf *torrent2.Torrent) (string, error) {
+func (s storageSqlite) Save(tf *torrent2.Torrent) (string, error) {
 	q := "INSERT INTO torrents (torrent_hash, name, magnet) VALUES (?, ?, ?)"
 	var m metainfo.Magnet
 	info := tf.Torrent.Metainfo()
@@ -34,8 +35,8 @@ func (s StorageSqlite) Save(tf *torrent2.Torrent) (string, error) {
 	return hash, nil
 }
 
-func (s StorageSqlite) Get(hash string) (*torrent2.Torrent, error) {
-	q := "SELECT magnet FROM torrents WHERE torrent_hash = ?"
+func (s storageSqlite) Get(hash string) (*torrent2.Torrent, error) {
+	q := "SELECT magnet FROM torrents WHERE torrent_hash = ?;"
 	var magnet string
 	row, err := s.db.QueryRow(q, hash)
 	err = row.Scan(&magnet)
@@ -50,15 +51,14 @@ func (s StorageSqlite) Get(hash string) (*torrent2.Torrent, error) {
 	return newTorrent, nil
 }
 
-func (s StorageSqlite) GetAll() ([]*torrent2.Torrent, error) {
-	q := "SELECT magnet FROM torrents"
+func (s storageSqlite) GetAll() ([]*torrent2.Torrent, error) {
+	q := "SELECT magnet FROM torrents;"
 	row, err := s.db.Query(q)
 	if err != nil {
 		return nil, err
 	}
 	res := make([]*torrent2.Torrent, 0)
 	defer row.Close()
-
 	err = row.Iterate(func(r *chai.Row) error {
 		var magnet string
 		err := r.Scan(&magnet)
@@ -78,16 +78,15 @@ func (s StorageSqlite) GetAll() ([]*torrent2.Torrent, error) {
 	return res, nil
 }
 
-func (s StorageSqlite) Delete(hash string) error {
-	q := "delete from torrents where torrent_hash = %s"
-	err := s.db.Exec(fmt.Sprintf(q, hash))
-	if err != nil {
-		return err
+func (s storageSqlite) Delete(hash string) error {
+	s.db.Where("TorrentHash =?", hash).Delete(&torrent2.TorrentModel{TorrentHash: hash})
+	if s.db.Error != nil {
+		return s.db.Error
 	}
 	return nil
 }
 
-func NewStorage(path string, conn *torrent.Client) (*StorageSqlite, error) {
+func NewStorage(path string, conn *torrent.Client) (torrent2.Storage, error) {
 
 	if _, err := os.Stat(path); err != nil {
 		// Creating a data.db
@@ -96,15 +95,14 @@ func NewStorage(path string, conn *torrent.Client) (*StorageSqlite, error) {
 			return nil, err
 		}
 	}
-	db, err := chai.Open(path)
+	db, err := gorm.Open(sqlite.Open("gotor.db"), &gorm.Config{})
 
 	if err != nil {
 		return nil, err
 	}
-	q := "create table torrents(\n    torrent_hash text not null unique,\n    name text not null,\n    magnet text not null,\n    constraint pk_torrent_hash primary key (torrent_hash)\n)"
-	err = db.Exec(q)
+	err = db.AutoMigrate(&torrent2.TorrentModel{})
 	if err != nil {
 		return nil, err
 	}
-	return &StorageSqlite{db: db, conn: conn}, nil
+	return &storageSqlite{db: db, conn: conn}, nil
 }

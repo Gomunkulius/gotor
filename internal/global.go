@@ -20,4 +20,5 @@ var InputStyle = lipgloss.NewStyle().
 
 func InitGlobal() {
 	Logger = log.GetLogger()
+
 }
