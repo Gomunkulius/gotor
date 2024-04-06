@@ -20,7 +20,8 @@ func main() {
 		return
 	}
 	defer f.Close()
-	c, _ := torrent.NewClient(nil)
+	cfg := torrent.NewDefaultClientConfig() // TODO: config
+	c, _ := torrent.NewClient(torrent.NewDefaultClientConfig())
 	s := table.DefaultStyles()
 
 	s.Header = s.Header.
