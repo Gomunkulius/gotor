@@ -21,7 +21,10 @@ func main() {
 	}
 	defer f.Close()
 	cfg := torrent.NewDefaultClientConfig() // TODO: config
-	c, _ := torrent.NewClient(torrent.NewDefaultClientConfig())
+	c, err := torrent.NewClient(cfg)
+	if err != nil || c == nil {
+		return
+	}
 	s := table.DefaultStyles()
 
 	s.Header = s.Header.
@@ -33,7 +36,10 @@ func main() {
 		Foreground(lipgloss.Color("229")).
 		Background(lipgloss.Color("57")).
 		Bold(false)
-	storage, err := local.NewStorage(".", c)
+	storage := local.NewStorageBbolt("bolt.db", c)
+	if storage == nil {
+		return
+	}
 	torrents, err := storage.GetAll()
 	torrent2.InitTorrents(torrents)
 	if err != nil {
