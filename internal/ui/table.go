@@ -16,12 +16,12 @@ type TorrentTable struct {
 
 func New(style table.Styles, torrents []*torrent2.Torrent) TorrentTable {
 	columns := []table.Column{
-		{Title: "ℹ️Name", Width: 10},
-		{Title: "📊Size", Width: 10},
-		{Title: "📈Progress", Width: 10},
-		{Title: "✈️Status", Width: 10},
-		{Title: "🧩Peers", Width: 10},
-		{Title: "⬆️Up speed", Width: 10},
+		{Title: "ℹ️Name", Width: 11},
+		{Title: "📊Size", Width: 11},
+		{Title: "📈Progress", Width: 11},
+		{Title: "✈️Status", Width: 11},
+		{Title: "🧩Peers", Width: 11},
+		{Title: "⬆️Speed", Width: 11},
 	}
 	var rows []table.Row
 	for _, tor := range torrents {
@@ -59,12 +59,12 @@ func New(style table.Styles, torrents []*torrent2.Torrent) TorrentTable {
 func (t *TorrentTable) Update() {
 
 	columns := []table.Column{
-		{Title: "ℹ️Name", Width: 10},
-		{Title: "📊Size", Width: 10},
-		{Title: "📈Progress", Width: 10},
-		{Title: "✈️Status", Width: 10},
-		{Title: "🧩Peers", Width: 10},
-		{Title: "⬆️Up speed", Width: 10},
+		{Title: "📛Name", Width: 11},
+		{Title: "📊Size", Width: 11},
+		{Title: "📈Progress", Width: 11},
+		{Title: "🔄Status", Width: 11},
+		{Title: "🧩Peers", Width: 11},
+		{Title: "💨Speed", Width: 11},
 	}
 	var rows []table.Row
 	for _, tor := range t.Torrents {

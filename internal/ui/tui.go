@@ -23,6 +23,13 @@ type MainModel struct {
 	storage    torrent2.Storage
 }
 
+type ProgramState int
+
+const (
+	Main ProgramState = iota
+	Input
+)
+
 type TickMsg time.Time
 
 func NewModel(table TorrentTable, conn *torrent.Client, storage torrent2.Storage) MainModel {
@@ -115,7 +122,15 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.storage)
 
 			}
-
+		case "k":
+			if !m.inputFlag {
+				if len(m.table.Torrents) == 0 {
+					return m, nil
+				}
+				m.table.Torrents = torrent2.TogglePauseTorrent(
+					m.table.Torrents,
+					m.table.Table.Cursor())
+			} // TODO: Pause torrent
 		case "q", "ctrl+c":
 			return m, tea.Quit
 		}

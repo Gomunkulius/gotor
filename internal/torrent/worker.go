@@ -16,6 +16,19 @@ func RemoveTorrent(s []*Torrent, index int, storage Storage) []*Torrent {
 	return append(s[:index], s[index+1:]...)
 }
 
+func TogglePauseTorrent(s []*Torrent, index int) []*Torrent {
+	tor := s[index]
+	switch tor.Status {
+	case UP:
+		tor.Torrent.DisallowDataUpload()
+		tor.Status = PAUSE
+	case PAUSE:
+		tor.Torrent.AllowDataUpload()
+		tor.Status = UP
+	}
+	return s
+}
+
 func InitTorrents(torrents []*Torrent) {
 	for _, t := range torrents {
 		<-t.Torrent.GotInfo()
