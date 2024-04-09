@@ -6,13 +6,14 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"gotor/internal"
-	"gotor/internal/ui"
+	torrent2 "gotor/internal/torrent"
 )
 
 type InputModel struct {
 	width      int
 	height     int
-	table      ui.TorrentTable
+	table      TorrentTable
+	storage    torrent2.Storage
 	inputField textinput.Model
 	conn       *torrent.Client
 }
@@ -22,21 +23,39 @@ func (m InputModel) Init() tea.Cmd {
 }
 
 func (m InputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.inputField.Focus()
 	switch msg := msg.(type) {
-	case ui.TickMsg:
-		m.table.Table, _ = m.table.Table.Update(msg)
-		m.table.Update()
-		m.table.Table.UpdateViewport()
-		return m, tea.Batch(tickEvery())
 	case tea.WindowSizeMsg:
 		m.height = msg.Height
 		m.width = msg.Width
 	case tea.KeyMsg:
-		switch msg.String() {
-
+		{
+			switch msg.String() {
+			case "esc":
+				return m, ExitCmd(Main)
+			case "enter":
+				magnet := m.inputField.Value()
+				t, err := torrent2.NewTorrent(magnet, m.conn, torrent2.UP)
+				if err != nil {
+					return m, nil
+				}
+				<-t.Torrent.GotInfo()
+				if err != nil {
+					return m, nil
+				}
+				for _, t2 := range m.table.Torrents {
+					if t == t2 {
+						return m, ExitCmd(Main)
+					}
+				}
+				m.table.Torrents = append(m.table.Torrents, t)
+				go torrent2.DownloadTorrent(t)
+				return m, SaveExitCmd(m.storage, t)
+			}
 		}
 	}
-
+	m.inputField, _ = m.inputField.Update(msg)
+	return m, nil
 }
 
 func (m InputModel) View() string {
@@ -50,8 +69,9 @@ func (m InputModel) View() string {
 	)
 }
 
-func NewInputModel(width int, height int, table ui.TorrentTable, conn *torrent.Client) *InputModel {
+func NewInputModel(width int, height int, table TorrentTable, conn *torrent.Client, storage torrent2.Storage) *InputModel {
 	return &InputModel{
+		storage:    storage,
 		width:      width,
 		height:     height,
 		table:      table,
