@@ -71,11 +71,15 @@ func (t *TorrentTable) Update() {
 
 		percentage := (float32(tor.Torrent.Stats().PiecesComplete) / float32(tor.Torrent.NumPieces())) * 100.0
 		written := tor.Torrent.Stats().BytesWritten
+		status := "Up"
+		if tor.Status == torrent2.PAUSE {
+			status = "Pause"
+		}
 		row := table.Row{
 			tor.Torrent.Name(),
 			fmt.Sprintf("%s", humanize.Bytes(uint64(tor.Torrent.Length()))),
 			fmt.Sprintf("%.2f%%", percentage),
-			"Up",
+			status,
 			strconv.Itoa(tor.Torrent.Stats().ActivePeers),
 			fmt.Sprintf("%s/s", humanize.Bytes(uint64(written.Int64()))),
 		}

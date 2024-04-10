@@ -20,10 +20,10 @@ func TogglePauseTorrent(s []*Torrent, index int) []*Torrent {
 	tor := s[index]
 	switch tor.Status {
 	case UP:
-		tor.Torrent.DisallowDataUpload()
+		tor.Torrent.DisallowDataDownload()
 		tor.Status = PAUSE
 	case PAUSE:
-		tor.Torrent.AllowDataUpload()
+		tor.Torrent.AllowDataDownload()
 		tor.Status = UP
 	}
 	return s

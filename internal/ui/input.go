@@ -44,13 +44,13 @@ func (m InputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return m, nil
 				}
 				for _, t2 := range m.table.Torrents {
-					if t == t2 {
+					if t.Torrent.InfoHash() == t2.Torrent.InfoHash() {
 						return m, ExitCmd(Main)
 					}
 				}
 				m.table.Torrents = append(m.table.Torrents, t)
 				go torrent2.DownloadTorrent(t)
-				return m, SaveExitCmd(m.storage, t)
+				return m, tea.Batch(SaveExitCmd(m.storage, t), tickEvery())
 			}
 		}
 	}

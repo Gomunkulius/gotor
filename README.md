@@ -4,16 +4,32 @@ The least functional and simplest torrent client you've ever seen
 
 ## Install 
 
+#### MacOS/Linux:
 ```shell
 make install
 ```
+#### Windows:
+Install it by hands :)
+## Build
+
+#### MacOS/Linux/Windows:
+```shell
+make build
+```
+
+#### Or
+```shell
+go build cmd/main/main.go
+```
+
 
 ## Roadmap
 
-- [ ] Pause torrents
+- [x] Pause torrents
 - [ ] Add torrent by .torrent file
+- [ ] Add tests
 
-## Screenshot
+## Screenshots
 <img src="./image.png">
 
 <img src="./image2.png">

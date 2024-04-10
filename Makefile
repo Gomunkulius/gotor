@@ -1,7 +1,9 @@
 run:
 	go run cmd/main/main.go
 
-install:
+build:
+	go build -o gotor cmd/main.go
 
-	mkdir /usr/bin/gotor
-	mv ./gotor /usr/bin/gotor
+install:
+	go build -o gotor cmd/main/main.go
+	mv ./gotor /usr/local/bin
