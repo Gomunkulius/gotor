@@ -7,14 +7,14 @@ import (
 
 func ExitCmd(state ProgramState) tea.Cmd {
 	return func() tea.Msg {
-		return state
+		return ChangeStateMsg(state)
 	}
 }
 
 func SaveExitCmd(storage torrent.Storage, tor *torrent.Torrent) tea.Cmd {
 	return func() tea.Msg {
 		storage.Save(tor)
-		return ExitCmd(Main)
-
+		cmd := ExitCmd(Main)
+		return cmd
 	}
 }

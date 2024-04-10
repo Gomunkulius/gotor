@@ -54,8 +54,9 @@ func (m InputModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	}
-	m.inputField, _ = m.inputField.Update(msg)
-	return m, nil
+	var cmd tea.Cmd
+	m.inputField, cmd = m.inputField.Update(msg)
+	return m, cmd
 }
 
 func (m InputModel) View() string {

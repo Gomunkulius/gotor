@@ -82,7 +82,7 @@ func (s storageBbolt) GetAll() ([]*torrent2.Torrent, error) {
 }
 
 func (s storageBbolt) Delete(hash string) error {
-	return s.Delete(hash)
+	return s.client.Delete([]byte(hash))
 }
 
 func NewStorageBbolt(path string, conn *torrent.Client) torrent2.Storage {

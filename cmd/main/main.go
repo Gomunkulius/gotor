@@ -17,12 +17,14 @@ func main() {
 	internal.InitGlobal()
 	f, err := tea.LogToFile("LOG.log", "debug")
 	if err != nil {
+		println("cant log into file")
 		return
 	}
 	defer f.Close()
 	cfg := torrent.NewDefaultClientConfig() // TODO: config
 	c, err := torrent.NewClient(cfg)
 	if err != nil || c == nil {
+		println("cant connect")
 		return
 	}
 	s := table.DefaultStyles()
@@ -38,15 +40,18 @@ func main() {
 		Bold(false)
 	storage := local.NewStorageBbolt("bolt.db", c)
 	if storage == nil {
+		println("cant create storage")
 		return
 	}
 	torrents, err := storage.GetAll()
 	torrent2.InitTorrents(torrents)
 	if err != nil {
+		println("cant init torrents")
 		return
 	}
 	torTable := ui.New(s, torrents)
 	if err != nil {
+		println("cant init ui")
 		return
 	}
 	m := ui.NewModel(torTable, c, storage)

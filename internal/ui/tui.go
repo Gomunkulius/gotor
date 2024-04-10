@@ -54,20 +54,37 @@ func (m MainModel) Init() tea.Cmd {
 
 func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// var cmd tea.Cmd
+	var cmds []tea.Cmd
 	switch msg := msg.(type) {
 	case ChangeStateMsg:
 		m.state = ProgramState(msg)
+		switch ProgramState(msg) {
+		case Main:
+			m.inputModel.inputField.Blur()
+		case Input:
+			m.inputModel.inputField.Focus()
+		}
 	}
 	switch m.state {
 	case Input:
-		inpmodl, cmd := m.inputModel.Update(msg)
-		return inpmodl, cmd
-	case Main:
-		programmod, cmd := m.programModel.Update(msg)
-		return programmod, cmd
-	}
-	return m, nil
+		inpMod, cmd := m.inputModel.Update(msg)
+		inpModel, ok := inpMod.(InputModel)
+		if !ok {
+			panic("wrong type")
+		}
+		m.inputModel = &inpModel
+		cmds = append(cmds, cmd)
 
+	case Main:
+		programMod, cmd := m.programModel.Update(msg)
+		programModel, ok := programMod.(ProgramModel)
+		if !ok {
+			panic("wrong type")
+		}
+		m.programModel = &programModel
+		cmds = append(cmds, cmd)
+	}
+	return m, tea.Batch(cmds...)
 }
 
 func (m MainModel) View() string {

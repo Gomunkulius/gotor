@@ -23,6 +23,11 @@ func (m ProgramModel) Init() tea.Cmd {
 
 func (m ProgramModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case TickMsg:
+		m.table.Table, _ = m.table.Table.Update(msg)
+		m.table.Update()
+		m.table.Table.UpdateViewport()
+		return m, tea.Batch(tickEvery())
 	case tea.WindowSizeMsg:
 		m.height = msg.Height
 		m.width = msg.Width
