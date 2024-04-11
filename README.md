@@ -37,4 +37,4 @@ make test
 ## Screenshots
 <img src="./image.png">
 
-<img src="./image2.png">
+<img src="./image1.png">
