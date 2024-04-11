@@ -26,7 +26,7 @@ type TickMsg time.Time
 
 type ChangeStateMsg ProgramState
 
-func NewModel(table TorrentTable, conn *torrent.Client, storage torrent2.Storage) MainModel {
+func NewModel(table *TorrentTable, conn *torrent.Client, storage torrent2.Storage) MainModel {
 	inpModel := NewInputModel(0, 0, table, conn, storage)
 	prgModel := NewProgramModel(0, 0, storage, table, keys)
 	return MainModel{
@@ -85,6 +85,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		m.programModel = &programModel
 		cmds = append(cmds, cmd)
+	default:
+		return m, tickEvery()
 	}
 	return m, tea.Batch(cmds...)
 }
@@ -97,21 +99,5 @@ func (m MainModel) View() string {
 	case Main:
 		return m.programModel.View()
 	}
-	return ""
-	//if m.inputFlag {
-	//	return lipgloss.Place(
-	//		m.width,
-	//		m.height,
-	//		lipgloss.Center,
-	//		lipgloss.Center,
-	//		lipgloss.JoinVertical(lipgloss.Center, internal.InputStyle.Render("Enter magnet"),
-	//			internal.InputStyle.Render(m.inputField.View())),
-	//	)
-	//}
-	//return lipgloss.Place(
-	//	m.width,
-	//	m.height,
-	//	lipgloss.Center,
-	//	lipgloss.Center,
-	//	lipgloss.JoinVertical(lipgloss.Center, internal.BaseStyle.Render(m.table.Table.View()), textStyle.Render(m.help.View(m.keys))))
+	return m.programModel.View()
 }

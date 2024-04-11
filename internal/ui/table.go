@@ -14,7 +14,7 @@ type TorrentTable struct {
 	styles   table.Styles
 }
 
-func New(style table.Styles, torrents []*torrent2.Torrent) TorrentTable {
+func NewTorrentTable(style table.Styles, torrents []*torrent2.Torrent) *TorrentTable {
 	columns := []table.Column{
 		{Title: "📛Name", Width: 11},
 		{Title: "📊Size", Width: 11},
@@ -49,7 +49,7 @@ func New(style table.Styles, torrents []*torrent2.Torrent) TorrentTable {
 		table.WithStyles(style),
 	)
 
-	return TorrentTable{
+	return &TorrentTable{
 		Torrents: torrents,
 		Table:    t,
 		styles:   style,

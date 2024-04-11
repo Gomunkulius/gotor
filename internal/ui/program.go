@@ -12,7 +12,7 @@ type ProgramModel struct {
 	height  int
 	width   int
 	storage torrent2.Storage
-	table   TorrentTable
+	table   *TorrentTable
 	keys    KeyMap
 	help    help.Model
 }
@@ -68,7 +68,7 @@ func (m ProgramModel) View() string {
 		lipgloss.Center,
 		lipgloss.JoinVertical(lipgloss.Center, internal.BaseStyle.Render(m.table.Table.View()), textStyle.Render(m.help.View(m.keys))))
 }
-func NewProgramModel(height int, width int, storage torrent2.Storage, table TorrentTable, keys KeyMap) *ProgramModel {
+func NewProgramModel(height int, width int, storage torrent2.Storage, table *TorrentTable, keys KeyMap) *ProgramModel {
 	return &ProgramModel{
 		height:  height,
 		width:   width,

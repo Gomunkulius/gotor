@@ -49,7 +49,7 @@ func main() {
 		println("cant init torrents")
 		return
 	}
-	torTable := ui.New(s, torrents)
+	torTable := ui.NewTorrentTable(s, torrents)
 	if err != nil {
 		println("cant init ui")
 		return

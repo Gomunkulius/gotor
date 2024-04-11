@@ -22,12 +22,17 @@ make build
 go build cmd/main/main.go
 ```
 
+## Run tests
+```shell
+make test
+```
+
 
 ## Roadmap
 
 - [x] Pause torrents
 - [ ] Add torrent by .torrent file
-- [ ] Add tests
+- [x] Add tests
 
 ## Screenshots
 <img src="./image.png">

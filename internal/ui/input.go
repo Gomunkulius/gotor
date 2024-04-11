@@ -12,7 +12,7 @@ import (
 type InputModel struct {
 	width      int
 	height     int
-	table      TorrentTable
+	table      *TorrentTable
 	storage    torrent2.Storage
 	inputField textinput.Model
 	conn       *torrent.Client
@@ -70,7 +70,7 @@ func (m InputModel) View() string {
 	)
 }
 
-func NewInputModel(width int, height int, table TorrentTable, conn *torrent.Client, storage torrent2.Storage) *InputModel {
+func NewInputModel(width int, height int, table *TorrentTable, conn *torrent.Client, storage torrent2.Storage) *InputModel {
 	return &InputModel{
 		storage:    storage,
 		width:      width,
