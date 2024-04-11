@@ -9,7 +9,7 @@ import (
 
 func TestStorageBbolt_Get(t *testing.T) {
 	cfg := torrent.NewDefaultClientConfig()
-	cfg.ListenPort = rand.IntN(16)
+	cfg.ListenPort = rand.IntN(65535-20000) + 20000
 	c, err := torrent.NewClient(cfg)
 	if err != nil || c == nil {
 		t.Errorf("cannot create client: %v", err)
