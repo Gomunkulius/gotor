@@ -35,6 +35,6 @@ make test
 - [x] Add tests
 
 ## Screenshots
-<img src="./image.png">
+<img src="./image.png" alt="">
 
-<img src="./image1.png">
+<img src="./image1.png" alt="">

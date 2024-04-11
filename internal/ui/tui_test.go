@@ -6,6 +6,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	torrent2 "gotor/internal/torrent"
 	"gotor/internal/torrent/local"
+	"log"
 	"testing"
 )
 
@@ -13,7 +14,7 @@ func createTestModel() *MainModel {
 	cfg := torrent.NewDefaultClientConfig()
 	c, err := torrent.NewClient(cfg)
 	if err != nil || c == nil {
-		println("cant connect")
+		log.Fatalf("cant create client %v", err)
 		return nil
 	}
 	s := table.DefaultStyles()
@@ -29,18 +30,18 @@ func createTestModel() *MainModel {
 		Bold(false)
 	storage := local.NewStorageBbolt("bolt.db", c)
 	if storage == nil {
-		println("cant create storage")
+		log.Fatalf("cant create storage %v", err)
 		return nil
 	}
 	torrents, err := storage.GetAll()
 	torrent2.InitTorrents(torrents)
 	if err != nil {
-		println("cant init torrents")
+		log.Fatalf("cant init torrents %v", err)
 		return nil
 	}
 	torTable := NewTorrentTable(s, torrents)
 	if err != nil {
-		println("cant init ui")
+		log.Fatalf("cant create torrent table %v", err)
 		return nil
 	}
 	m := NewModel(torTable, c, storage)
