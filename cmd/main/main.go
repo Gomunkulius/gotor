@@ -21,7 +21,15 @@ func main() {
 		return
 	}
 	defer f.Close()
+	gcfg, err := torrent2.NewConfig()
+	if err != nil || gcfg == nil {
+		println("cant create config")
+
+		return
+	}
 	cfg := torrent.NewDefaultClientConfig() // TODO: config
+	cfg.DataDir = gcfg.DataDir
+	cfg.ListenPort = gcfg.Port
 	c, err := torrent.NewClient(cfg)
 	if err != nil || c == nil {
 		println("cant connect")

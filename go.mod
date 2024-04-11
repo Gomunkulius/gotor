@@ -10,6 +10,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/fatih/color v1.16.0
 	go.etcd.io/bbolt v1.3.9
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
