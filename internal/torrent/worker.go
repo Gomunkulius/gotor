@@ -1,5 +1,7 @@
 package torrent
 
+import "github.com/anacrolix/torrent"
+
 // DownloadTorrent Must be used as a goroutine
 func DownloadTorrent(torrent *Torrent) {
 	torrent.Torrent.DownloadAll()
@@ -29,9 +31,12 @@ func TogglePauseTorrent(s []*Torrent, index int) []*Torrent {
 	return s
 }
 
-func InitTorrents(torrents []*Torrent) {
-	for _, t := range torrents {
-		<-t.Torrent.GotInfo()
+func InitTorrents(torrents []*TorrentModel, conn *torrent.Client) []*Torrent {
+	var res []*Torrent
+	for _, tm := range torrents {
+		t, _ := tm.ToTorrent(conn)
+		res = append(res, t)
 		go DownloadTorrent(t)
 	}
+	return res
 }

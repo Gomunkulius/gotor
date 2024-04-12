@@ -10,6 +10,7 @@ import (
 	torrent2 "gotor/internal/torrent"
 	"gotor/internal/torrent/local"
 	"gotor/internal/ui"
+	"math/rand/v2"
 	"os"
 )
 
@@ -24,16 +25,23 @@ func main() {
 	gcfg, err := torrent2.NewConfig()
 	if err != nil || gcfg == nil {
 		println("cant create config")
-
 		return
 	}
 	cfg := torrent.NewDefaultClientConfig() // TODO: config
 	cfg.DataDir = gcfg.DataDir
 	cfg.ListenPort = gcfg.Port
 	c, err := torrent.NewClient(cfg)
+	defer c.Close()
 	if err != nil || c == nil {
-		println("cant connect")
-		return
+		fmt.Printf("cant connect err %v\n", err)
+		cfg.ListenPort = rand.IntN(65535-20000) + 20000
+		crand, err := torrent.NewClient(cfg)
+		if err != nil || crand == nil {
+			fmt.Printf("cant connect on port %d err %v\n", cfg.ListenPort, err)
+			return
+		}
+		c = crand
+		fmt.Printf("new non default client created, listening on port %d\n", cfg.ListenPort)
 	}
 	s := table.DefaultStyles()
 
@@ -52,16 +60,12 @@ func main() {
 		return
 	}
 	torrents, err := storage.GetAll()
-	torrent2.InitTorrents(torrents)
+	files := torrent2.InitTorrents(torrents, c)
 	if err != nil {
 		println("cant init torrents")
 		return
 	}
-	torTable := ui.NewTorrentTable(s, torrents)
-	if err != nil {
-		println("cant init ui")
-		return
-	}
+	torTable := ui.NewTorrentTable(s, files)
 	m := ui.NewModel(torTable, c, storage)
 
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {

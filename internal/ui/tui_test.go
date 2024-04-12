@@ -1,9 +1,9 @@
 package ui
 
 import (
-	"github.com/anacrolix/torrent"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/lipgloss"
+	testing2 "gotor/internal/testing"
 	torrent2 "gotor/internal/torrent"
 	"gotor/internal/torrent/local"
 	"log"
@@ -11,8 +11,7 @@ import (
 )
 
 func createTestModel() *MainModel {
-	cfg := torrent.NewDefaultClientConfig()
-	c, err := torrent.NewClient(cfg)
+	c, err := testing2.MockClient()
 	if err != nil || c == nil {
 		log.Fatalf("cant create client %v", err)
 		return nil
@@ -34,12 +33,12 @@ func createTestModel() *MainModel {
 		return nil
 	}
 	torrents, err := storage.GetAll()
-	torrent2.InitTorrents(torrents)
+	files := torrent2.InitTorrents(torrents, c)
 	if err != nil {
 		log.Fatalf("cant init torrents %v", err)
 		return nil
 	}
-	torTable := NewTorrentTable(s, torrents)
+	torTable := NewTorrentTable(s, files)
 	if err != nil {
 		log.Fatalf("cant create torrent table %v", err)
 		return nil

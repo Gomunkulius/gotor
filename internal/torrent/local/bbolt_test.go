@@ -1,16 +1,13 @@
 package local
 
 import (
-	"github.com/anacrolix/torrent"
+	testing2 "gotor/internal/testing"
 	torrent2 "gotor/internal/torrent"
-	"math/rand/v2"
 	"testing"
 )
 
 func TestStorageBbolt_Get(t *testing.T) {
-	cfg := torrent.NewDefaultClientConfig()
-	cfg.ListenPort = rand.IntN(65535-20000) + 20000
-	c, err := torrent.NewClient(cfg)
+	c, err := testing2.MockClient()
 	if err != nil || c == nil {
 		t.Errorf("cannot create client: %v", err)
 		return
@@ -30,6 +27,7 @@ func TestStorageBbolt_Get(t *testing.T) {
 	if err != nil {
 		t.Errorf("cannot create torrent: %v", err)
 	}
+	<-tor.Torrent.GotInfo()
 	_, err = storage.Save(tor)
 	if err != nil {
 		t.Errorf("cannot save torrent: %v", err)
@@ -38,7 +36,7 @@ func TestStorageBbolt_Get(t *testing.T) {
 	if err != nil {
 		t.Errorf("cannot get torrent: %v", err)
 	}
-	if tor.Torrent.InfoHash() != tor1.Torrent.InfoHash() {
+	if tor.Torrent.InfoHash().String() != tor1.TorrentHash {
 		t.Errorf("got torrent %v, want %v", tor, tor1)
 	}
 }

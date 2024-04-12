@@ -41,7 +41,7 @@ func (s storageBbolt) Save(tf *torrent2.Torrent) (string, error) {
 	return hash, nil
 }
 
-func (s storageBbolt) Get(hash string) (*torrent2.Torrent, error) {
+func (s storageBbolt) Get(hash string) (*torrent2.TorrentModel, error) {
 	tor := torrent2.TorrentModel{}
 	buf := make([]byte, 0)
 	buf = s.client.Get([]byte(hash))
@@ -49,16 +49,11 @@ func (s storageBbolt) Get(hash string) (*torrent2.Torrent, error) {
 	if err != nil {
 		return nil, err
 	}
-	newTorrent, err := torrent2.NewTorrent(tor.Magnet, s.conn, torrent2.UP)
-	if err != nil {
-		return nil, err
-	}
-	<-newTorrent.Torrent.GotInfo()
-	return newTorrent, nil
+	return &tor, nil
 }
 
-func (s storageBbolt) GetAll() ([]*torrent2.Torrent, error) {
-	var res []*torrent2.Torrent
+func (s storageBbolt) GetAll() ([]*torrent2.TorrentModel, error) {
+	var res []*torrent2.TorrentModel
 	err := s.client.ForEach(func(key, value []byte) error {
 		tor := torrent2.TorrentModel{}
 
@@ -67,12 +62,7 @@ func (s storageBbolt) GetAll() ([]*torrent2.Torrent, error) {
 			panic(err)
 			return err
 		}
-		newTorrent, err := torrent2.NewTorrent(tor.Magnet, s.conn, torrent2.UP)
-		if err != nil {
-			return err
-		}
-		<-newTorrent.Torrent.GotInfo()
-		res = append(res, newTorrent)
+		res = append(res, &tor)
 		return nil
 	})
 	if err != nil {

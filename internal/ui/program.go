@@ -25,7 +25,7 @@ func (m ProgramModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case TickMsg:
 		m.table.Table, _ = m.table.Table.Update(msg)
-		m.table.Update()
+		m.table.Update(m.width, m.height)
 		m.table.Table.UpdateViewport()
 		return m, tea.Batch(tickEvery())
 	case tea.WindowSizeMsg:
@@ -55,7 +55,7 @@ func (m ProgramModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 	m.table.Table, _ = m.table.Table.Update(msg)
-	m.table.Update()
+	m.table.Update(m.width, m.height)
 	return m, nil
 }
 

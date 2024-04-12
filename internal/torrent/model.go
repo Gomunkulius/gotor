@@ -1,6 +1,10 @@
 package torrent
 
-import "github.com/anacrolix/torrent"
+import (
+	"github.com/anacrolix/torrent"
+	"github.com/anacrolix/torrent/metainfo"
+	"net/url"
+)
 
 type Status int
 
@@ -34,4 +38,31 @@ func NewTorrent(magnet string, conn *torrent.Client, status Status) (*Torrent, e
 		cancel:  make(chan bool),
 		Status:  status,
 	}, nil
+}
+
+func (t *TorrentModel) ToTorrent(conn *torrent.Client) (*Torrent, error) {
+	newTorrent, err := NewTorrent(t.Magnet, conn, UP)
+	if err != nil {
+		return nil, err
+	}
+	<-newTorrent.Torrent.GotInfo()
+	return newTorrent, nil
+}
+
+func (tf *Torrent) ToDTO() *TorrentModel {
+	var m metainfo.Magnet
+	info := tf.Torrent.Metainfo()
+	m.Trackers = append(m.Trackers, info.UpvertedAnnounceList().DistinctValues()...)
+	if tf.Torrent.Info() != nil {
+		m.DisplayName = tf.Torrent.Info().BestName()
+	}
+	m.InfoHash = tf.Torrent.InfoHash()
+	m.Params = make(url.Values)
+	m.Params["ws"] = tf.Torrent.Metainfo().UrlList
+	model := TorrentModel{
+		TorrentHash: tf.Torrent.InfoHash().String(),
+		Name:        tf.Torrent.Name(),
+		Magnet:      m.String(),
+	}
+	return &model
 }

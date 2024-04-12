@@ -60,10 +60,14 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state = ProgramState(msg)
 		switch ProgramState(msg) {
 		case Main:
+			m.programModel.width = m.inputModel.width
+			m.programModel.height = m.inputModel.height
 			m.inputModel.inputField.Blur()
 			m.programModel.table = m.inputModel.table
 		case Input:
 			m.inputModel.inputField.Focus()
+			m.inputModel.width = m.programModel.width
+			m.inputModel.height = m.programModel.height
 		}
 		return m, tickEvery()
 	}
