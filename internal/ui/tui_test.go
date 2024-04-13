@@ -3,7 +3,7 @@ package ui
 import (
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/lipgloss"
-	testing2 "gotor/internal/testing"
+	testing2 "gotor/internal"
 	torrent2 "gotor/internal/torrent"
 	"gotor/internal/torrent/local"
 	"log"
@@ -39,6 +39,7 @@ func createTestModel() *MainModel {
 		return nil
 	}
 	torTable := NewTorrentTable(s, files)
+
 	if err != nil {
 		log.Fatalf("cant create torrent table %v", err)
 		return nil

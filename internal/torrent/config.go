@@ -6,6 +6,7 @@ import (
 	"io"
 	"math/rand/v2"
 	"os"
+	"path/filepath"
 	"runtime"
 )
 
@@ -14,7 +15,7 @@ type Config struct {
 	DataDir string `yaml:"data_dir"`
 }
 
-var DEFAULT_CONFIG_FILE_PATH = "/etc/gotor.yml"
+var DEFAULT_CONFIG_FILE_PATH = ".config/gotor.yml"
 
 func genConfigStub() string {
 	return fmt.Sprintf(`port: %d
@@ -25,7 +26,8 @@ func NewConfig() (*Config, error) {
 	if runtime.GOOS == "windows" {
 		DEFAULT_CONFIG_FILE_PATH = os.Getenv("APPDATA") + "/gotor.yml"
 	}
-	f, err := os.OpenFile(DEFAULT_CONFIG_FILE_PATH, os.O_RDWR|os.O_CREATE, 0777)
+	DEFAULT_CONFIG_FILE_PATH = filepath.Join(os.Getenv("HOME"), DEFAULT_CONFIG_FILE_PATH)
+	f, err := os.Create(DEFAULT_CONFIG_FILE_PATH)
 	if err != nil {
 		return nil, err
 	}

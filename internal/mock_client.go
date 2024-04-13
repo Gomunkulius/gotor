@@ -1,4 +1,4 @@
-package testing
+package internal
 
 import (
 	"github.com/anacrolix/torrent"

@@ -5,7 +5,7 @@ build:
 	go build -o gotor cmd/main.go
 
 test:
-	go test -v ./...
+	go test ./...
 
 build_all_platforms:
 	mkdir build

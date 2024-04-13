@@ -1,7 +1,7 @@
 package local
 
 import (
-	testing2 "gotor/internal/testing"
+	testing2 "gotor/internal"
 	torrent2 "gotor/internal/torrent"
 	"testing"
 )

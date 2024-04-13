@@ -24,7 +24,7 @@ func main() {
 	defer f.Close()
 	gcfg, err := torrent2.NewConfig()
 	if err != nil || gcfg == nil {
-		println("cant create config")
+		fmt.Printf("cant create config err %v\n", err)
 		return
 	}
 	cfg := torrent.NewDefaultClientConfig() // TODO: config

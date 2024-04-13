@@ -2,7 +2,6 @@ package internal
 
 import (
 	"github.com/charmbracelet/lipgloss"
-	"gotor/internal/log"
 	"log/slog"
 )
 
@@ -19,6 +18,6 @@ var InputStyle = lipgloss.NewStyle().
 	Width(80).Align(lipgloss.Center).Foreground(lipgloss.Color("229"))
 
 func InitGlobal() {
-	Logger = log.GetLogger()
+	Logger = GetLogger()
 
 }
