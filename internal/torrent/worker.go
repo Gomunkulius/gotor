@@ -36,6 +36,9 @@ func InitTorrents(torrents []*TorrentModel, conn *torrent.Client) []*Torrent {
 	for _, tm := range torrents {
 		t, _ := tm.ToTorrent(conn)
 		res = append(res, t)
+		if t.Status == PAUSE {
+			t.Torrent.DisallowDataDownload()
+		}
 		go DownloadTorrent(t)
 	}
 	return res

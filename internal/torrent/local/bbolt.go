@@ -29,6 +29,7 @@ func (s storageBbolt) Save(tf *torrent2.Torrent) (string, error) {
 		TorrentHash: hash,
 		Name:        tf.Torrent.Name(),
 		Magnet:      m.String(),
+		Status:      int(tf.Status),
 	}
 	tfjson, err := json.Marshal(model)
 	if err != nil {

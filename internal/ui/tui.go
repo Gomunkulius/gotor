@@ -13,6 +13,7 @@ type MainModel struct {
 	// Models
 	inputModel   *InputModel
 	programModel *ProgramModel
+	chooseModel  *ChooseModel
 }
 
 type ProgramState int
@@ -20,6 +21,7 @@ type ProgramState int
 const (
 	Main ProgramState = iota
 	Input
+	Choose
 )
 
 type TickMsg time.Time
@@ -29,10 +31,12 @@ type ChangeStateMsg ProgramState
 func NewModel(table *TorrentTable, conn *torrent.Client, storage torrent2.Storage) MainModel {
 	inpModel := NewInputModel(0, 0, table, conn, storage)
 	prgModel := NewProgramModel(0, 0, storage, table, keys)
+	chooseModel := NewChooseModel(0, 0, table, storage, conn)
 	return MainModel{
 		state:        Main,
 		inputModel:   inpModel,
 		programModel: prgModel,
+		chooseModel:  chooseModel,
 		conn:         conn,
 	}
 }
@@ -49,6 +53,8 @@ type TorrentInfoUpdate string
 func (m MainModel) Init() tea.Cmd {
 	m.inputModel.Init()
 	m.programModel.Init()
+	m.chooseModel.Init()
+	m.state = Choose
 	return tickEvery()
 }
 
@@ -68,7 +74,11 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.inputModel.inputField.Focus()
 			m.inputModel.width = m.programModel.width
 			m.inputModel.height = m.programModel.height
+		case Choose:
+			m.chooseModel.width = m.programModel.width
+			m.chooseModel.height = m.programModel.height
 		}
+
 		return m, tickEvery()
 	}
 	switch m.state {
@@ -89,6 +99,14 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		m.programModel = &programModel
 		cmds = append(cmds, cmd)
+	case Choose:
+		chooseMod, cmd := m.chooseModel.Update(msg)
+		chooseModel, ok := chooseMod.(ChooseModel)
+		if !ok {
+			panic("wrong type")
+		}
+		m.chooseModel = &chooseModel
+		cmds = append(cmds, cmd)
 	default:
 		return m, tickEvery()
 	}
@@ -102,6 +120,8 @@ func (m MainModel) View() string {
 		return m.inputModel.View()
 	case Main:
 		return m.programModel.View()
+	case Choose:
+		return m.chooseModel.View()
 	}
 	return m.programModel.View()
 }

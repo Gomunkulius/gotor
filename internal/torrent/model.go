@@ -17,18 +17,21 @@ type Torrent struct {
 	Torrent *torrent.Torrent
 
 	// cancel is the channel used to stop the torrent download
-	cancel chan bool
-	Status Status
+	cancel  chan bool
+	Status  Status
+	Speed1s int64
 }
 
 type TorrentModel struct {
 	TorrentHash string `gorm:"primary_key"`
+	Status      int
 	Name        string
 	Magnet      string
 }
 
 func NewTorrent(magnet string, conn *torrent.Client, status Status) (*Torrent, error) {
 	tor, err := conn.AddMagnet(magnet)
+
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +44,7 @@ func NewTorrent(magnet string, conn *torrent.Client, status Status) (*Torrent, e
 }
 
 func (t *TorrentModel) ToTorrent(conn *torrent.Client) (*Torrent, error) {
-	newTorrent, err := NewTorrent(t.Magnet, conn, UP)
+	newTorrent, err := NewTorrent(t.Magnet, conn, Status(t.Status))
 	if err != nil {
 		return nil, err
 	}

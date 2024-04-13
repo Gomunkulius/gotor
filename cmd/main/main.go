@@ -66,6 +66,7 @@ func main() {
 		return
 	}
 	torTable := ui.NewTorrentTable(s, files)
+	go torTable.CountSpeed()
 	m := ui.NewModel(torTable, c, storage)
 
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {

@@ -6,6 +6,7 @@ import (
 	"github.com/dustin/go-humanize"
 	torrent2 "gotor/internal/torrent"
 	"strconv"
+	"time"
 )
 
 type TorrentTable struct {
@@ -57,7 +58,7 @@ func NewTorrentTable(style table.Styles, torrents []*torrent2.Torrent) *TorrentT
 }
 
 func (t *TorrentTable) Update(width, height int) {
-	columnWidth := (width * 2) / 4
+	columnWidth := (width * 3) / 4
 	columns := []table.Column{
 		{Title: "📛Name", Width: int(columnWidth / 3)},
 		{Title: "📊Size", Width: int(columnWidth / 6)},
@@ -70,7 +71,7 @@ func (t *TorrentTable) Update(width, height int) {
 	for _, tor := range t.Torrents {
 
 		percentage := (float32(tor.Torrent.Stats().PiecesComplete) / float32(tor.Torrent.NumPieces())) * 100.0
-		written := tor.Torrent.Stats().BytesWritten
+		written := tor.Speed1s
 		status := "Up"
 		if tor.Status == torrent2.PAUSE {
 			status = "Pause"
@@ -81,7 +82,7 @@ func (t *TorrentTable) Update(width, height int) {
 			fmt.Sprintf("%.2f%%", percentage),
 			status,
 			strconv.Itoa(tor.Torrent.Stats().ActivePeers),
-			fmt.Sprintf("%s/s", humanize.Bytes(uint64(written.Int64()))),
+			fmt.Sprintf("%s/s", humanize.Bytes(uint64(written))),
 		}
 
 		rows = append(rows, row)
@@ -97,4 +98,20 @@ func (t *TorrentTable) Update(width, height int) {
 	tab.SetCursor(t.Table.Cursor())
 	t.Table = tab
 	return
+}
+
+func (t *TorrentTable) CountSpeed() {
+	for {
+		for _, tor := range t.Torrents {
+			if tor.Status == torrent2.PAUSE {
+				tor.Speed1s = 0
+				continue
+			}
+			before := tor.Torrent.Stats().BytesRead
+			time.Sleep(1 * time.Second)
+			after := tor.Torrent.Stats().BytesRead
+			diff := after.Int64() - before.Int64()
+			tor.Speed1s = diff
+		}
+	}
 }

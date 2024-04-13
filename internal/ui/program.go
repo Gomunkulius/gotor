@@ -42,6 +42,11 @@ func (m ProgramModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.table.Torrents = torrent2.TogglePauseTorrent(
 				m.table.Torrents,
 				m.table.Table.Cursor())
+			_, err := m.storage.Save(m.table.Torrents[m.table.Table.Cursor()])
+			if err != nil {
+				return m, tea.Batch(tickEvery())
+			}
+			return m, tickEvery()
 		case "j":
 			if len(m.table.Torrents) == 0 {
 				return m, nil
@@ -52,6 +57,8 @@ func (m ProgramModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.storage)
 		case "b":
 			return m, ExitCmd(Input)
+		case "c":
+			return m, ExitCmd(Choose)
 		}
 	}
 	m.table.Table, _ = m.table.Table.Update(msg)
