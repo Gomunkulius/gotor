@@ -6,6 +6,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/ncruces/zenity"
 	"gotor/internal"
 	torrent2 "gotor/internal/torrent"
 	"io"
@@ -60,7 +61,41 @@ func (m ChooseModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
+		case "enter":
+			switch m.listmod.Cursor() {
+			case 0:
+				return m, ExitCmd(Input)
+			case 1:
+				path, err := zenity.SelectFile(
+					zenity.Filename("."),
+					zenity.FileFilters{
+						{"Torrent files", []string{"*.torrent"}, false},
+					})
+				if err != nil {
+					return m, nil
+				}
+				t, err := torrent2.NewTorrentFromFile(path, m.conn, torrent2.UP)
+				if err != nil {
+					return m, nil
+				}
+				<-t.Torrent.GotInfo()
+				if err != nil {
+					return m, nil
+				}
+				for _, t2 := range m.table.Torrents {
+					if t.Torrent.InfoHash() == t2.Torrent.InfoHash() {
+						return m, ExitCmd(Main)
+					}
+				}
+				m.table.Torrents = append(m.table.Torrents, t)
+				go torrent2.DownloadTorrent(t)
+				return m, tea.Batch(SaveExitCmd(m.storage, t), tickEvery())
+
+			}
+		case "esc":
+			return m, ExitCmd(Main)
 		}
+
 	}
 	var cmd tea.Cmd
 	m.listmod, cmd = m.listmod.Update(msg)

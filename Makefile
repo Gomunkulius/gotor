@@ -10,7 +10,7 @@ test:
 build_all_platforms:
 	mkdir build
 	cd build
-	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 sudo go build -o build/gotor-win-amd64 cmd/main/main.go
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 sudo go build -o build/gotor-win-amd64.exe cmd/main/main.go
 	echo "Builded for win amd64"
 	GOOS=linux GOARCH=arm CGO_ENABLED=0 sudo go build -o build/gotor-linux-arm cmd/main/main.go
 	echo "Builded for linux arm"

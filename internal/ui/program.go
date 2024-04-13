@@ -56,8 +56,6 @@ func (m ProgramModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.table.Table.Cursor(),
 				m.storage)
 		case "b":
-			return m, ExitCmd(Input)
-		case "c":
 			return m, ExitCmd(Choose)
 		}
 	}

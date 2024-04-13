@@ -43,6 +43,20 @@ func NewTorrent(magnet string, conn *torrent.Client, status Status) (*Torrent, e
 	}, nil
 }
 
+func NewTorrentFromFile(path string, conn *torrent.Client, status Status) (*Torrent, error) {
+	tor, err := conn.AddTorrentFromFile(path)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &Torrent{
+		Torrent: tor,
+		cancel:  make(chan bool),
+		Status:  status,
+	}, nil
+}
+
 func (t *TorrentModel) ToTorrent(conn *torrent.Client) (*Torrent, error) {
 	newTorrent, err := NewTorrent(t.Magnet, conn, Status(t.Status))
 	if err != nil {
