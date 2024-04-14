@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	log2 "github.com/anacrolix/log"
 	"github.com/anacrolix/torrent"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
@@ -30,6 +31,8 @@ func main() {
 	cfg := torrent.NewDefaultClientConfig() // TODO: config
 	cfg.DataDir = gcfg.DataDir
 	cfg.ListenPort = gcfg.Port
+	cfg.Logger = log2.Logger{}
+	cfg.Debug = false
 	c, err := torrent.NewClient(cfg)
 	defer c.Close()
 	if err != nil || c == nil {

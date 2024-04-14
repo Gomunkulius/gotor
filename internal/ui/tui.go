@@ -4,6 +4,7 @@ import (
 	"github.com/anacrolix/torrent"
 	tea "github.com/charmbracelet/bubbletea"
 	torrent2 "gotor/internal/torrent"
+	"log"
 	"time"
 )
 
@@ -63,18 +64,28 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 	switch msg := msg.(type) {
 	case ChangeStateMsg:
+		prev := m.state
 		m.state = ProgramState(msg)
 		switch ProgramState(msg) {
 		case Main:
-			m.programModel.width = m.inputModel.width
-			m.programModel.height = m.inputModel.height
+			log.Println("Change state to Main")
+			switch prev {
+			case Input:
+				m.programModel.width = m.inputModel.width
+				m.programModel.height = m.inputModel.height
+			case Choose:
+				m.programModel.width = m.chooseModel.width
+				m.programModel.height = m.chooseModel.height
+			}
 			m.inputModel.inputField.Blur()
 			m.programModel.table = m.inputModel.table
 		case Input:
+			log.Println("Change state to Input")
 			m.inputModel.inputField.Focus()
 			m.inputModel.width = m.programModel.width
 			m.inputModel.height = m.programModel.height
 		case Choose:
+			log.Println("Change state to Choose")
 			m.chooseModel.width = m.programModel.width
 			m.chooseModel.height = m.programModel.height
 		}

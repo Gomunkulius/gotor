@@ -44,12 +44,26 @@ func NewTorrent(magnet string, conn *torrent.Client, status Status) (*Torrent, e
 }
 
 func NewTorrentFromFile(path string, conn *torrent.Client, status Status) (*Torrent, error) {
-	tor, err := conn.AddTorrentFromFile(path)
-
+	tmptor, err := conn.AddTorrentFromFile(path)
 	if err != nil {
 		return nil, err
 	}
-
+	var m metainfo.Magnet
+	info := tmptor.Metainfo()
+	m.Trackers = append(m.Trackers, info.UpvertedAnnounceList().DistinctValues()...)
+	if tmptor.Info() != nil {
+		m.DisplayName = tmptor.Info().BestName()
+	}
+	m.InfoHash = tmptor.InfoHash()
+	m.Params = make(url.Values)
+	m.Params["ws"] = tmptor.Metainfo().UrlList
+	if err != nil {
+		return nil, err
+	}
+	tor, err := conn.AddMagnet(m.String())
+	if err != nil {
+		return nil, err
+	}
 	return &Torrent{
 		Torrent: tor,
 		cancel:  make(chan bool),

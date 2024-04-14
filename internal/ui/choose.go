@@ -10,6 +10,7 @@ import (
 	"gotor/internal"
 	torrent2 "gotor/internal/torrent"
 	"io"
+	"log"
 )
 
 type item string
@@ -93,6 +94,7 @@ func (m ChooseModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			}
 		case "esc":
+			log.Printf("esc pressed")
 			return m, ExitCmd(Main)
 		}
 
