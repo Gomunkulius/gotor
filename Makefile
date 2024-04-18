@@ -2,7 +2,7 @@ run:
 	go run cmd/main/main.go
 
 build:
-	go build -o gotor cmd/main.go
+	go build -o gotor cmd/main/main.go
 
 test:
 	go test ./...

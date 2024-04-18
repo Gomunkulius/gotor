@@ -5,6 +5,7 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/dustin/go-humanize"
 	torrent2 "gotor/internal/torrent"
+	"runtime"
 	"strconv"
 	"time"
 )
@@ -66,6 +67,16 @@ func (t *TorrentTable) Update(width, height int) {
 		{Title: "🔄Status", Width: int(columnWidth/6) / 2},
 		{Title: "🧩Peers", Width: int(columnWidth/6) / 2},
 		{Title: "💨Speed", Width: int(columnWidth / 6)},
+	}
+	if runtime.GOOS == "windows" {
+		columns = []table.Column{
+			{Title: "Name", Width: int(columnWidth / 3)},
+			{Title: "Size", Width: int(columnWidth / 6)},
+			{Title: "Progress", Width: (int(columnWidth/6) * 3) / 4},
+			{Title: "Status", Width: int(columnWidth/6) / 2},
+			{Title: "Peers", Width: int(columnWidth/6) / 2},
+			{Title: "Speed", Width: int(columnWidth / 6)},
+		}
 	}
 	var rows []table.Row
 	for _, tor := range t.Torrents {
