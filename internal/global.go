@@ -1,8 +1,15 @@
 package internal
 
 import (
+	log2 "github.com/anacrolix/log"
 	"github.com/charmbracelet/lipgloss"
 )
+
+type MyHandler struct{}
+
+func (m MyHandler) Handle(r log2.Record) {
+	return
+}
 
 var BaseStyle = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).

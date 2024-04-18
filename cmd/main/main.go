@@ -17,6 +17,12 @@ import (
 
 func main() {
 	internal.InitGlobal()
+
+	// anacrolix dumbass!
+	if len(log2.Default.Handlers) != 0 {
+		log2.Default.Handlers[0] = internal.MyHandler{}
+	}
+
 	f, err := tea.LogToFile("LOG.log", "debug")
 	if err != nil {
 		println("cant log into file")
