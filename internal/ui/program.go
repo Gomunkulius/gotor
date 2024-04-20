@@ -1,11 +1,14 @@
 package ui
 
 import (
+	"fmt"
 	"github.com/charmbracelet/bubbles/help"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"gotor/internal"
 	torrent2 "gotor/internal/torrent"
+	"os/exec"
+	"runtime"
 )
 
 type ProgramModel struct {
@@ -15,6 +18,7 @@ type ProgramModel struct {
 	table   *TorrentTable
 	keys    KeyMap
 	help    help.Model
+	cfg     *torrent2.Config
 }
 
 func (m ProgramModel) Init() tea.Cmd {
@@ -57,6 +61,15 @@ func (m ProgramModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.storage)
 		case "b":
 			return m, ExitCmd(Choose)
+		case "enter":
+			if runtime.GOOS == "windows" {
+				cmd := exec.Command("cmd", "/c", fmt.Sprintf("explorer.exe /select %s",
+					m.cfg.DataDir))
+				cmd.Run()
+			} else {
+				cmd := exec.Command("open", m.cfg.DataDir)
+				cmd.Run()
+			}
 		}
 	}
 	m.table.Table, _ = m.table.Table.Update(msg)
@@ -73,8 +86,9 @@ func (m ProgramModel) View() string {
 		lipgloss.Center,
 		lipgloss.JoinVertical(lipgloss.Center, internal.BaseStyle.Render(m.table.Table.View()), textStyle.Render(m.help.View(m.keys))))
 }
-func NewProgramModel(height int, width int, storage torrent2.Storage, table *TorrentTable, keys KeyMap) *ProgramModel {
+func NewProgramModel(height int, width int, storage torrent2.Storage, table *TorrentTable, keys KeyMap, cfg *torrent2.Config) *ProgramModel {
 	return &ProgramModel{
+		cfg:     cfg,
 		height:  height,
 		width:   width,
 		storage: storage,

@@ -7,6 +7,8 @@ import (
 	torrent2 "gotor/internal/torrent"
 	"gotor/pkg/bbolt/client"
 	"net/url"
+	"path/filepath"
+	"runtime"
 )
 
 type storageBbolt struct {
@@ -77,6 +79,11 @@ func (s storageBbolt) Delete(hash string) error {
 }
 
 func NewStorageBbolt(path string, conn *torrent.Client) torrent2.Storage {
+	if runtime.GOOS != "windows" {
+		path = filepath.Join("/usr/local/bin/gotor" + path)
+	} else {
+		path = filepath.Join("C:/Program Files/gotor" + path)
+	}
 	cl, err := client.NewClient(path)
 	if err != nil {
 		return nil

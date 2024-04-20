@@ -4,6 +4,7 @@ import (
 	"fmt"
 	log2 "github.com/anacrolix/log"
 	"github.com/anacrolix/torrent"
+	storage2 "github.com/anacrolix/torrent/storage"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -17,6 +18,7 @@ import (
 	"math/rand/v2"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strconv"
 )
@@ -79,11 +81,6 @@ func setup(ctx *cli.Context) error {
 		log2.Default.Handlers[0] = internal.MyHandler{}
 	}
 
-	f, err := tea.LogToFile("LOG.log", "debug")
-	if err != nil {
-		return fmt.Errorf("cant log into file")
-	}
-	defer f.Close()
 	gcfg, err := torrent2.NewConfig()
 	if err != nil || gcfg == nil {
 		return fmt.Errorf("cant create config err %v", err)
@@ -93,6 +90,7 @@ func setup(ctx *cli.Context) error {
 	cfg.ListenPort = gcfg.Port
 	cfg.Logger = log2.Logger{}
 	cfg.Debug = false
+	cfg.DefaultStorage = storage2.NewBoltDB(filepath.Dir(torrent2.DEFAULT_CONFIG_FILE_PATH))
 	c, err := torrent.NewClient(cfg)
 	defer c.Close()
 	if err != nil || c == nil {
@@ -129,7 +127,7 @@ func setup(ctx *cli.Context) error {
 	}
 	torTable := ui.NewTorrentTable(s, files)
 	go torTable.CountSpeed()
-	m := ui.NewModel(torTable, c, storage)
+	m := ui.NewModel(torTable, c, storage, gcfg)
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)
 		return err
@@ -186,7 +184,7 @@ func setDirectory(context *cli.Context, s string) error {
 	return nil
 }
 
-func setPort(context *cli.Context, s string) error {
+func setPort(_ *cli.Context, s string) error {
 	cfg, err := torrent2.NewConfig()
 	if err != nil {
 		return err

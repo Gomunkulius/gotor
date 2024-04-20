@@ -29,9 +29,9 @@ type TickMsg time.Time
 
 type ChangeStateMsg ProgramState
 
-func NewModel(table *TorrentTable, conn *torrent.Client, storage torrent2.Storage) MainModel {
+func NewModel(table *TorrentTable, conn *torrent.Client, storage torrent2.Storage, cfg *torrent2.Config) MainModel {
 	inpModel := NewInputModel(0, 0, table, conn, storage)
-	prgModel := NewProgramModel(0, 0, storage, table, keys)
+	prgModel := NewProgramModel(0, 0, storage, table, keys, cfg)
 	chooseModel := NewChooseModel(0, 0, table, storage, conn)
 	return MainModel{
 		state:        Main,
