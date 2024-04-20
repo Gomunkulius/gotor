@@ -12,6 +12,10 @@ func TestStorageBbolt_Get(t *testing.T) {
 		t.Errorf("cannot create client: %v", err)
 		return
 	}
+	gcfg, err := torrent2.NewConfig()
+	if err != nil || gcfg == nil {
+		t.Fatalf("cannot create config: %v", err)
+	}
 	storage := NewStorageBbolt("bolt.db", c)
 	if storage == nil {
 		t.Errorf("cannot create storage: %v", err)

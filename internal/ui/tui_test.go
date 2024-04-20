@@ -11,6 +11,11 @@ import (
 )
 
 func createTestModel() *MainModel {
+	gcfg, err := torrent2.NewConfig()
+	if err != nil || gcfg == nil {
+		println(err)
+		return nil
+	}
 	c, err := testing2.MockClient()
 	if err != nil || c == nil {
 		log.Fatalf("cant create client %v", err)
@@ -44,7 +49,7 @@ func createTestModel() *MainModel {
 		log.Fatalf("cant create torrent table %v", err)
 		return nil
 	}
-	m := NewModel(torTable, c, storage)
+	m := NewModel(torTable, c, storage, gcfg)
 	return &m
 }
 
