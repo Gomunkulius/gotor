@@ -1,9 +1,10 @@
 @echo off
 
-curl https://github.com/Gomunkulius/gotor/releases/latest/download/gotor-win-amd64.exe -O
+curl https://github.com/Gomunkulius/gotor/releases/latest/download/gotor-win-amd64.exe -OutFile gotor-win-amd64.exe
 
 echo "Renaming"
-Rename ".\gotor-win-amd64.exe""gotor.exe"
+rename ".\gotor-win-amd64.exe" "gotor.exe"
 echo "Creating directory"
-mkdir C:/Program Files/gotor
-Move .\gotor.exe C:/Program Files/gotor
+mkdir "C:/Program Files/gotor"
+move ".\gotor.exe" "C:/Program Files/gotor"
+pause
