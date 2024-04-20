@@ -6,10 +6,13 @@ The least functional and simplest torrent client you've ever seen
 
 #### MacOS/Linux:
 ```shell
-make install
+sudo .\install.sh
 ```
 #### Windows:
-Install it by hands :)
+Run with administrator rights:
+```shell
+.\install-win.bat
+```
 ## Build
 
 #### MacOS/Linux/Windows:
