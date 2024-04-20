@@ -80,9 +80,9 @@ func (s storageBbolt) Delete(hash string) error {
 
 func NewStorageBbolt(path string, conn *torrent.Client) torrent2.Storage {
 	if runtime.GOOS != "windows" {
-		path = filepath.Join("/usr/local/bin/gotor" + path)
+		path = filepath.Join(torrent2.DEFAULT_CONFIG_FILE_PATH + path)
 	} else {
-		path = filepath.Join("C:/Program Files/gotor" + path)
+		path = filepath.Join(torrent2.DEFAULT_CONFIG_FILE_PATH + path)
 	}
 	cl, err := client.NewClient(path)
 	if err != nil {

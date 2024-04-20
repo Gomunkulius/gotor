@@ -116,7 +116,6 @@ func setup(ctx *cli.Context) error {
 		Bold(false)
 	storage := local.NewStorageBbolt("bolt.db", c)
 	if storage == nil {
-		println("cant create storage")
 		return fmt.Errorf("Can't create storage")
 	}
 	torrents, err := storage.GetAll()
