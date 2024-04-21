@@ -114,6 +114,9 @@ func (t *TorrentTable) Update(width, height int) {
 func (t *TorrentTable) CountSpeed() {
 	for {
 		for _, tor := range t.Torrents {
+			if tor == nil || tor.Torrent == nil {
+				continue
+			}
 			if tor.Status == torrent2.PAUSE {
 				tor.Speed1s = 0
 				continue

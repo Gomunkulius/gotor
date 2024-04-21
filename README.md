@@ -34,7 +34,7 @@ make test
 ## Roadmap
 
 - [x] Pause torrents
-- [ ] Add torrent by .torrent file
+- [x] Add torrent by .torrent file
 - [x] Add tests
 
 ## Screenshots
