@@ -1,10 +1,11 @@
 @echo off
+echo Downloading latest release...
+Powershell.exe -command "Invoke-WebRequest https://github.com/Gomunkulius/gotor/releases/latest/download/gotor-win-amd64.exe -OutFile gotor-win-amd64.exe"
 
-curl https://github.com/Gomunkulius/gotor/releases/latest/download/gotor-win-amd64.exe -OutFile gotor-win-amd64.exe
-
-echo "Renaming"
+echo Renaming..
 rename ".\gotor-win-amd64.exe" "gotor.exe"
-echo "Creating directory"
+echo Creating directory...
 mkdir "C:/Program Files/gotor"
-move ".\gotor.exe" "C:/Program Files/gotor"
+move ".\gotor.exe" "C:\Program Files\gotor"
+setx PATH "%PATH%;C:\Program Files\gotor" /M
 pause
