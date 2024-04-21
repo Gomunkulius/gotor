@@ -11,7 +11,7 @@ func (m MyHandler) Handle(r log2.Record) {
 	return
 }
 
-const VERSION = "0.3.2"
+const VERSION = "0.4.1"
 
 var BaseStyle = lipgloss.NewStyle().
 	BorderStyle(lipgloss.NormalBorder()).

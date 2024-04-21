@@ -14,6 +14,7 @@ import (
 	torrent2 "gotor/internal/torrent"
 	"gotor/internal/torrent/local"
 	"gotor/internal/ui"
+	"io"
 	"log"
 	"math/rand/v2"
 	"os"
@@ -80,6 +81,7 @@ func setup(ctx *cli.Context) error {
 	if len(log2.Default.Handlers) != 0 {
 		log2.Default.Handlers[0] = internal.MyHandler{}
 	}
+	log.SetOutput(io.Discard)
 
 	gcfg, err := torrent2.NewConfig()
 	if err != nil || gcfg == nil {
