@@ -7,5 +7,5 @@ rename ".\gotor-win-amd64.exe" "gotor.exe"
 echo Creating directory...
 mkdir "C:/Program Files/gotor"
 move ".\gotor.exe" "C:\Program Files\gotor"
-setx PATH "%PATH%;C:\Program Files\gotor" /M
+where 7z.exe 2>nul || setx PATH "%PATH%;C:\Program Files\gotor" /M
 pause

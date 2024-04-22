@@ -4,7 +4,6 @@ import (
 	"fmt"
 	log2 "github.com/anacrolix/log"
 	"github.com/anacrolix/torrent"
-	storage2 "github.com/anacrolix/torrent/storage"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -19,7 +18,6 @@ import (
 	"math/rand/v2"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"runtime"
 	"strconv"
 )
@@ -92,7 +90,6 @@ func setup(ctx *cli.Context) error {
 	cfg.ListenPort = gcfg.Port
 	cfg.Logger = log2.Logger{}
 	cfg.Debug = false
-	cfg.DefaultStorage = storage2.NewBoltDB(filepath.Dir(torrent2.DEFAULT_CONFIG_FILE_PATH))
 	c, err := torrent.NewClient(cfg)
 	defer c.Close()
 	if err != nil || c == nil {
@@ -133,6 +130,7 @@ func setup(ctx *cli.Context) error {
 		fmt.Println("Error running program:", err)
 		return err
 	}
+	fmt.Println("cant start")
 	return nil
 }
 
