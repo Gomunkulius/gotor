@@ -1,8 +1,10 @@
 package internal
 
 import (
-	"github.com/anacrolix/torrent"
+	"fmt"
 	"math/rand/v2"
+
+	"github.com/anacrolix/torrent"
 )
 
 // MockClient Almost mock client :)
@@ -13,6 +15,9 @@ func MockClient() (*torrent.Client, error) {
 	c, err := torrent.NewClient(cfg)
 	if err != nil {
 		return nil, err
+	}
+	if c == nil {
+		return nil, fmt.Errorf("Shit")
 	}
 	return c, nil
 }

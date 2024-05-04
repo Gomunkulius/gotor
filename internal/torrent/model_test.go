@@ -19,6 +19,7 @@ func TestTorrent_ToDTO(t *testing.T) {
 	}
 	<-newTorrent.Torrent.GotInfo()
 	torrentDTO := newTorrent.ToDTO()
+	// verify torrent fields
 	if torrentDTO.TorrentHash != newTorrent.Torrent.InfoHash().String() {
 		t.Fatalf("expected torrent hash to be %s but got %s", newTorrent.Torrent.InfoHash().String(), torrentDTO.TorrentHash)
 	}

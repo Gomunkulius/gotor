@@ -124,7 +124,6 @@ func setup(ctx *cli.Context) error {
 		return fmt.Errorf("Can't init torrents")
 	}
 	torTable := ui.NewTorrentTable(s, files)
-	go torTable.CountSpeed()
 	m := ui.NewModel(torTable, c, storage, gcfg)
 	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)

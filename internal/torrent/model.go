@@ -57,9 +57,6 @@ func NewTorrentFromFile(path string, conn *torrent.Client, status Status) (*Torr
 	m.InfoHash = tmptor.InfoHash()
 	m.Params = make(url.Values)
 	m.Params["ws"] = tmptor.Metainfo().UrlList
-	if err != nil {
-		return nil, err
-	}
 	tor, err := conn.AddMagnet(m.String())
 	if err != nil {
 		return nil, err
